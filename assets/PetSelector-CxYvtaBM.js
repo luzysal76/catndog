@@ -1,0 +1,3 @@
+import{u as d,j as t}from"./index-Cqr4kHGV.js";import"./vendor-react-hH5YV1TF.js";import{P as i}from"./types-BMnDRasz.js";function x(){const{pets:s,activePetId:r,setActivePetId:n}=d();return!s||s.length===0?null:t.jsx("div",{className:"flex gap-2 overflow-x-auto pb-1 px-4",children:s.map(e=>{const a=i.find(c=>c.id===e.species)||i[4],o=e.id===r;return t.jsxs("button",{onClick:()=>n(e.id),className:`flex items-center gap-1.5 px-3 py-1.5 rounded-full
+                        text-sm font-medium whitespace-nowrap transition-all
+                        ${o?"bg-brand-primary text-white shadow-md scale-105":"bg-white text-gray-600 border border-gray-200"}`,children:[t.jsx("span",{children:a.emoji}),t.jsx("span",{children:e.name})]},e.id)})})}export{x as P};
