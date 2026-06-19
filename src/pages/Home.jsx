@@ -2,18 +2,12 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { usePetContext } from '../App.jsx'
 import PetSelector from '../components/PetSelector.jsx'
+import RecordItem from '../components/RecordItem.jsx'
 import { getRecordsByPetAndDate } from '../lib/db.js'
 import { RECORD_TYPES, PET_SPECIES } from '../constants/types.js'
 
-function TodaySummaryCard({ petId }) {
-  const [records, setRecords] = useState([])
-
-  useEffect(() => {
-    if (!petId) return
-    const today = new Date().toISOString().slice(0, 10)
-    getRecordsByPetAndDate(petId, today).then(setRecords)
-  }, [petId])
-
+// records prop을 받아 이중 DB 쿼리 제거
+function TodaySummaryCard({ records }) {
   const counts = {}
   Object.keys(RECORD_TYPES).forEach(k => { counts[k] = 0 })
   records.forEach(r => {
@@ -69,33 +63,12 @@ function TodaySummaryCard({ petId }) {
   )
 }
 
-function RecentRecordItem({ record }) {
-  const type = Object.values(RECORD_TYPES).find(t => t.id === record.type)
-  const time = new Date(record.timestamp).toLocaleTimeString('ko-KR', {
-    hour: '2-digit', minute: '2-digit',
-  })
-  return (
-    <div className="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0">
-      <span className="text-2xl">{type?.emoji || '📝'}</span>
-      <div className="flex-1">
-        <p className="text-sm font-medium text-brand-dark">{type?.label || record.type}</p>
-        {record.memo && (
-          <p className="text-xs text-gray-400 truncate">{record.memo}</p>
-        )}
-      </div>
-      <span className="text-xs text-gray-400">{time}</span>
-      {record.photo && (
-        <img src={record.photo} alt="" className="w-10 h-10 rounded-lg object-cover" />
-      )}
-    </div>
-  )
-}
-
 export default function Home() {
   const navigate = useNavigate()
   const { pets, activePetId, activePet } = usePetContext()
   const [todayRecords, setTodayRecords] = useState([])
 
+  // 단 1번만 쿼리 후 TodaySummaryCard와 타임라인 양쪽에 공유
   useEffect(() => {
     if (!activePetId) return
     const today = new Date().toISOString().slice(0, 10)
@@ -159,18 +132,18 @@ export default function Home() {
         </button>
       </div>
 
-      {/* 오늘 요약 */}
+      {/* 오늘 요약 — 이미 로드된 todayRecords 전달, DB 재호출 없음 */}
       <div className="px-4 mt-4">
-        <TodaySummaryCard petId={activePetId} />
+        <TodaySummaryCard records={todayRecords} />
       </div>
 
-      {/* 최근 기록 */}
+      {/* 최근 기록 타임라인 */}
       {todayRecords.length > 0 && (
         <div className="px-4 mt-4">
           <div className="card">
             <p className="text-xs text-gray-400 font-medium mb-2">오늘 기록 타임라인</p>
             {todayRecords.slice(0, 6).map(rec => (
-              <RecentRecordItem key={rec.id} record={rec} />
+              <RecordItem key={rec.id} record={rec} className="py-2" />
             ))}
           </div>
         </div>

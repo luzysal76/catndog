@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { usePetContext } from '../App.jsx'
 import PetSelector from '../components/PetSelector.jsx'
+import RecordItem from '../components/RecordItem.jsx'
 import { getRecordsByPet } from '../lib/db.js'
 import { RECORD_TYPES, WEEKDAYS } from '../constants/types.js'
 
@@ -97,27 +98,10 @@ function DayDetail({ dateStr, records }) {
       {records.length === 0 ? (
         <p className="text-sm text-gray-300 text-center py-3">기록이 없어요</p>
       ) : (
-        <div className="space-y-2">
-          {records.sort((a, b) => a.timestamp - b.timestamp).map(rec => {
-            const type = Object.values(RECORD_TYPES).find(t => t.id === rec.type)
-            const time = new Date(rec.timestamp).toLocaleTimeString('ko-KR', {
-              hour: '2-digit', minute: '2-digit',
-            })
-            return (
-              <div key={rec.id} className="flex items-center gap-3 py-1.5
-                                           border-b border-gray-50 last:border-0">
-                <span className="text-2xl">{type?.emoji || '📝'}</span>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-brand-dark">{type?.label || rec.type}</p>
-                  {rec.memo && <p className="text-xs text-gray-400">{rec.memo}</p>}
-                </div>
-                <span className="text-xs text-gray-400">{time}</span>
-                {rec.photo && (
-                  <img src={rec.photo} alt="" className="w-10 h-10 rounded-lg object-cover" />
-                )}
-              </div>
-            )
-          })}
+        <div className="space-y-0">
+          {records.sort((a, b) => a.timestamp - b.timestamp).map(rec => (
+            <RecordItem key={rec.id} record={rec} className="py-1.5" />
+          ))}
         </div>
       )}
     </div>

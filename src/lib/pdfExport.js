@@ -1,14 +1,18 @@
-import jsPDF from 'jspdf'
-import html2canvas from 'html2canvas'
-
 /**
  * DOM 요소를 PDF로 내보냅니다.
+ * jsPDF와 html2canvas를 dynamic import로 로드 — PDF 버튼 클릭 시에만 번들 로드
  * html2canvas 스크린샷 방식이므로 한글 깨짐 없음.
  * @param {HTMLElement} element - PDF로 변환할 DOM 요소
  * @param {string} filename - 저장할 파일명 (예: '건강리포트_2024-01.pdf')
  */
 export async function exportToPDF(element, filename = '똥체크_리포트.pdf') {
   try {
+    // dynamic import — 실제 PDF 내보내기 시에만 대형 라이브러리 로드
+    const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([
+      import('jspdf'),
+      import('html2canvas'),
+    ])
+
     const canvas = await html2canvas(element, {
       scale: 2,
       useCORS: true,

@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
+// recharts 정적 import — HealthReport 자체가 React.lazy() 로 lazy chunk이므로
+// vite.config.js manualChunks: 'vendor-charts' 와 결합하여
+// /report 방문 시에만 vendor-charts chunk가 로드됨 (= dynamic import 효과와 동일)
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, LineChart, Line, Legend,

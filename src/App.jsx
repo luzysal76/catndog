@@ -1,14 +1,24 @@
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useState, useEffect, lazy, Suspense } from 'react'
 import { HashRouter, Routes, Route } from 'react-router-dom'
 import BottomNav from './components/BottomNav.jsx'
-import Home from './pages/Home.jsx'
-import Record from './pages/Record.jsx'
-import AIAnalysis from './pages/AIAnalysis.jsx'
-import Calendar from './pages/Calendar.jsx'
-import HealthReport from './pages/HealthReport.jsx'
-import Settings from './pages/Settings.jsx'
 import { Toast } from './components/ui/Toast.jsx'
 import { getAllPets } from './lib/db.js'
+
+// 페이지 lazy loading — 초기 번들에서 제외, 라우트 방문 시 로드
+const Home        = lazy(() => import('./pages/Home.jsx'))
+const Record      = lazy(() => import('./pages/Record.jsx'))
+const AIAnalysis  = lazy(() => import('./pages/AIAnalysis.jsx'))
+const Calendar    = lazy(() => import('./pages/Calendar.jsx'))
+const HealthReport = lazy(() => import('./pages/HealthReport.jsx'))
+const Settings    = lazy(() => import('./pages/Settings.jsx'))
+
+function PageLoader() {
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <span className="text-4xl animate-bounce">🐾</span>
+    </div>
+  )
+}
 
 // ── Global Contexts ──────────────────────────────────────────
 export const PetContext = createContext(null)
@@ -62,14 +72,16 @@ export default function App() {
       <PetContext.Provider value={petCtx}>
         <HashRouter>
           <div className="relative min-h-screen bg-brand-light">
-            <Routes>
-              <Route path="/"         element={<Home />} />
-              <Route path="/record"   element={<Record />} />
-              <Route path="/ai"       element={<AIAnalysis />} />
-              <Route path="/calendar" element={<Calendar />} />
-              <Route path="/report"   element={<HealthReport />} />
-              <Route path="/settings" element={<Settings />} />
-            </Routes>
+            <Suspense fallback={<PageLoader />}>
+              <Routes>
+                <Route path="/"         element={<Home />} />
+                <Route path="/record"   element={<Record />} />
+                <Route path="/ai"       element={<AIAnalysis />} />
+                <Route path="/calendar" element={<Calendar />} />
+                <Route path="/report"   element={<HealthReport />} />
+                <Route path="/settings" element={<Settings />} />
+              </Routes>
+            </Suspense>
             <BottomNav />
             {toast && (
               <Toast
