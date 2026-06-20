@@ -109,6 +109,7 @@ export default function AIAnalysis() {
     setPhoto(null)
     setResult(null)
     setError(null)
+    if (fileRef.current) fileRef.current.value = ''
   }
 
   return (
@@ -132,7 +133,6 @@ export default function AIAnalysis() {
           ref={fileRef}
           type="file"
           accept="image/*"
-          capture="environment"
           className="hidden"
           onChange={handlePhoto}
         />
@@ -167,21 +167,29 @@ export default function AIAnalysis() {
           </button>
         )}
 
-        {/* 분석 버튼 */}
+        {/* 분석 버튼 + 외부 전송 고지 */}
         {photo && !result && (
-          <Button
-            onClick={handleAnalyze}
-            disabled={analyzing}
-            fullWidth
-            size="lg"
-          >
-            {analyzing ? (
-              <span className="flex items-center gap-2">
-                <span className="animate-spin">⏳</span>
-                AI 분석 중...
-              </span>
-            ) : '🔍 AI 분석 시작'}
-          </Button>
+          <>
+            <div className="bg-pastel-yellow rounded-2xl p-3">
+              <p className="text-xs text-brand-dark leading-relaxed">
+                📤 사진은 AI 분석을 위해 <strong>Pollinations.ai 서버</strong>로 전송됩니다.
+                민감한 개인정보가 포함되지 않도록 해주세요.
+              </p>
+            </div>
+            <Button
+              onClick={handleAnalyze}
+              disabled={analyzing}
+              fullWidth
+              size="lg"
+            >
+              {analyzing ? (
+                <span className="flex items-center gap-2">
+                  <span className="animate-spin">⏳</span>
+                  AI 분석 중...
+                </span>
+              ) : '🔍 AI 분석 시작'}
+            </Button>
+          </>
         )}
 
         {/* 오류 */}

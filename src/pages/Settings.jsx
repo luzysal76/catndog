@@ -29,6 +29,7 @@ function PetForm({ initial, onSave, onCancel }) {
           onChange={e => setName(e.target.value)}
           placeholder="반려동물 이름"
           required
+          maxLength={20}
           className="w-full border border-gray-200 rounded-xl px-3 py-2.5
                      text-sm focus:outline-none focus:border-brand-primary"
         />
@@ -78,6 +79,7 @@ function PetForm({ initial, onSave, onCancel }) {
           placeholder="예: 4.5"
           step="0.1"
           min="0"
+          max="200"
           className="w-full border border-gray-200 rounded-xl px-3 py-2.5
                      text-sm focus:outline-none focus:border-brand-primary"
         />
@@ -237,7 +239,7 @@ export default function Settings() {
             )}
           </div>
           <p className="text-xs text-gray-300">
-            패턴 기반 알림: 마지막 배변 후 일정 시간이 지나면 알림을 보내요.
+            이상 감지 알림: 오늘 배변 횟수가 평소 범위를 벗어나면 알림을 보내요.
           </p>
         </div>
 

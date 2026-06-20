@@ -48,35 +48,56 @@ export async function analyzePoopImage(base64Image) {
     max_tokens: 512,
   }
 
-  const response = await fetch(API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  })
+  // 30초 타임아웃 — 네트워크 hang 방지
+  const controller = new AbortController()
+  const timeoutId  = setTimeout(() => controller.abort(), 30_000)
+
+  let response
+  try {
+    response = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    })
+  } catch (e) {
+    if (e.name === 'AbortError') {
+      throw new Error('AI 서버 응답이 너무 늦습니다. 잠시 후 다시 시도해주세요.')
+    }
+    throw e
+  } finally {
+    clearTimeout(timeoutId)
+  }
 
   if (!response.ok) {
     throw new Error(`AI 분석 서버 오류 (${response.status})`)
   }
 
-  const data = await response.json()
+  // text() 먼저 받고 JSON 파싱 — Content-Type이 text/plain으로 올 경우 대응
+  const rawText = await response.text()
+  let data
+  try {
+    data = JSON.parse(rawText)
+  } catch (_) {
+    throw new Error('AI 서버 응답을 파싱할 수 없습니다. 잠시 후 다시 시도해주세요.')
+  }
+
   const content = data?.choices?.[0]?.message?.content || ''
 
   // JSON 파싱 시도
   try {
     const jsonMatch = content.match(/\{[\s\S]*\}/)
     if (jsonMatch) {
-      return JSON.parse(jsonMatch[0])
+      const parsed = JSON.parse(jsonMatch[0])
+      // 필수 필드 검증
+      if (parsed.status && parsed.description) {
+        return parsed
+      }
     }
   } catch (_) {}
 
-  // 파싱 실패 시 기본값 반환
-  return {
-    status: 'unknown',
-    confidence: 0,
-    description: 'AI 분석 결과를 처리할 수 없습니다.',
-    advice: '수의사에게 문의해보세요.',
-    urgency: 'low',
-  }
+  // 파싱 실패 시 명확한 오류 메시지 포함 기본값 반환
+  throw new Error('AI가 분석 결과를 반환하지 않았습니다. 사진을 다시 확인하거나 잠시 후 재시도해주세요.')
 }
 
 /**
