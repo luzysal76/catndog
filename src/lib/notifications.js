@@ -21,8 +21,8 @@ export function sendNotification(title, body, options = {}) {
   }
   return new Notification(title, {
     body,
-    icon: '/catndog/favicon.svg',
-    badge: '/catndog/favicon.svg',
+    icon: '/catndog/icon.png',
+    badge: '/catndog/icon.png',
     ...options,
   })
 }
